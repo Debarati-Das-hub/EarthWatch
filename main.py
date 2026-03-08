@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -92,5 +91,4 @@ async def health():
 @app.on_event("startup")
 async def startup():
     print("\n🚀 EarthWatch India starting...")
-    # Start auto-refresh every 5 minutes
     pipeline.start_auto_refresh(interval_minutes=5)
