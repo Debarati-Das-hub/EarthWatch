@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarthWatch India — Live Intelligence</title>
+<link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.3/maptiler-sdk.css" rel="stylesheet">
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.3/maptiler-sdk.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap');
+:root{
+  --bg:#0a0612;--panel:#0d0818;--panel2:#110d20;
+  --border:#1e1040;--border2:#2a1a55;
+  --text:#ddd0f5;--muted:#6b5a8a;
+  --accent:#c084fc;--accent2:#818cf8;
+  --pink:#f472b6;--violet:#7c3aed;--navy:#1e1b4b;
+  --red:#fb7185;--orange:#fb923c;--yellow:#fbbf24;--green:#34d399;--blue:#60a5fa;
+  --mono:'Montserrat',sans-serif;
+  --sans:'Poppins',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif !important}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(124,58,237,0.12) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(244,114,182,0.08) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 50% 50%,rgba(99,102,241,0.06) 0%,transparent 70%);pointer-events:none}
+.app{display:grid;grid-template-columns:290px 1fr 310px;grid-template-rows:56px 1fr;height:100vh;position:relative;z-index:1}
+.topbar{grid-column:1/-1;background:linear-gradient(90deg,rgba(13,8,24,0.98),rgba(17,13,32,0.98));border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:20px;z-index:100;backdrop-filter:blur(20px);box-shadow:0 1px 30px rgba(124,58,237,0.1)}
+.logo-mark{font-family:'Montserrat',sans-serif !important;font-size:16px;font-weight:900 !important;letter-spacing:3px;color:#fff;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.logo-dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--accent));box-shadow:0 0 14px var(--accent),0 0 28px rgba(244,114,182,0.4);animation:breathe 3s ease-in-out infinite}
+.logo-india{background:linear-gradient(90deg,var(--accent),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Montserrat',sans-serif !important;font-weight:900 !important}
+.topbar-sub{font-family:'Poppins',sans-serif !important;font-size:9px;color:var(--muted);letter-spacing:2px;font-weight:500;text-transform:uppercase}
+.topbar-stats{display:flex;margin-left:auto;border:1px solid var(--border2);border-radius:8px;overflow:hidden;background:rgba(30,16,64,0.5)}
+.ts{padding:0 16px;height:56px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;border-right:1px solid var(--border2);cursor:pointer;transition:background .2s;min-width:75px}
+.ts:last-child{border-right:none}
+.ts:hover{background:rgba(192,132,252,0.08)}
+.ts-num{font-family:'Montserrat',sans-serif !important;font-size:18px;font-weight:800 !important;line-height:1}
+.ts-lbl{font-family:'Poppins',sans-serif !important;font-size:8px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;font-weight:600}
+.clock-box{font-family:'Montserrat',sans-serif !important;font-size:11px;color:var(--muted);padding:0 16px;border-left:1px solid var(--border2);display:flex;flex-direction:column;gap:2px;align-items:flex-end}
+.clock-time{font-family:'Montserrat',sans-serif !important;font-size:16px;color:var(--text);letter-spacing:2px;font-weight:700 !important}
+.left{background:linear-gradient(180deg,rgba(13,8,24,0.95),rgba(11,7,20,0.98));border-right:1px solid var(--border2);display:flex;flex-direction:column;overflow:hidden}
+.panel-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:'Montserrat',sans-serif !important;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;font-weight:800 !important}
+.filters{display:flex;gap:5px;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.fbtn{font-family:'Poppins',sans-serif !important;font-size:9px;padding:4px 10px;border-radius:20px;cursor:pointer;letter-spacing:0.5px;font-weight:600;background:transparent;border:1px solid var(--border2);color:var(--muted);transition:all .2s;text-transform:uppercase}
+.fbtn:hover,.fbtn.on{background:linear-gradient(135deg,rgba(192,132,252,0.15),rgba(129,140,248,0.15));color:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(192,132,252,0.2)}
+.run-btn{margin:10px 14px;padding:11px 0;text-align:center;font-family:'Poppins',sans-serif !important;font-size:10px;letter-spacing:1px;font-weight:700 !important;background:linear-gradient(135deg,rgba(52,211,153,0.08),rgba(96,165,250,0.08));border:1px solid rgba(52,211,153,0.25);color:var(--green);cursor:pointer;transition:all .2s;text-transform:uppercase;border-radius:6px}
+.run-btn:hover{background:linear-gradient(135deg,rgba(52,211,153,0.15),rgba(96,165,250,0.15));box-shadow:0 0 15px rgba(52,211,153,0.2)}
+.run-btn.running{color:var(--yellow);border-color:rgba(251,191,36,0.3);background:rgba(251,191,36,0.06);animation:breathe 1s infinite}
+.list{flex:1;overflow-y:auto}
+.card{padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.card:hover{background:rgba(192,132,252,0.04)}
+.card.active{background:linear-gradient(90deg,rgba(192,132,252,0.06),transparent);border-left-color:var(--accent)}
+.card-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.badge{font-family:'Poppins',sans-serif !important;font-size:8px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;border-radius:20px;font-weight:700 !important}
+.sev-pill{font-family:'Montserrat',sans-serif !important;font-size:12px;font-weight:800 !important}
+.card-title{font-family:'Poppins',sans-serif !important;font-size:12px;font-weight:600 !important;color:#e8d5ff;line-height:1.4;margin-bottom:4px}
+.card-meta{font-family:'Poppins',sans-serif !important;font-size:10px;color:var(--muted);display:flex;gap:8px;align-items:center;font-weight:500}
+.conf-tag{font-family:'Poppins',sans-serif !important;font-size:8px;padding:1px 6px;letter-spacing:1px;border-radius:10px;font-weight:600}
+.t-cyclone{background:rgba(192,132,252,0.12);color:var(--accent);border:1px solid rgba(192,132,252,0.25)}
+.t-flood{background:rgba(96,165,250,0.10);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.t-fire{background:rgba(251,146,60,0.12);color:var(--orange);border:1px solid rgba(251,146,60,0.2)}
+.t-air_quality{background:rgba(244,114,182,0.10);color:var(--pink);border:1px solid rgba(244,114,182,0.2)}
+.t-earthquake{background:rgba(251,113,133,0.12);color:var(--red);border:1px solid rgba(251,113,133,0.2)}
+.t-default{background:rgba(107,90,138,0.15);color:var(--muted);border:1px solid var(--border2)}
+.c-HIGH{background:rgba(251,113,133,0.1);color:var(--red);border:1px solid rgba(251,113,133,0.2)}
+.c-MEDIUM{background:rgba(251,191,36,0.1);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.c-LOW{background:rgba(107,90,138,0.15);color:var(--muted);border:1px solid var(--border2)}
+.map-wrap{position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+.map-legend{position:absolute;bottom:20px;left:20px;background:rgba(10,6,18,0.92);border:1px solid var(--border2);padding:12px 16px;font-family:'Poppins',sans-serif !important;font-size:9px;color:var(--muted);line-height:2;letter-spacing:0.5px;font-weight:500;border-radius:8px;backdrop-filter:blur(10px)}
+.map-legend div{display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.right{background:linear-gradient(180deg,rgba(13,8,24,0.95),rgba(11,7,20,0.98));border-left:1px solid var(--border2);display:flex;flex-direction:column;overflow:hidden}
+.detail-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);gap:14px;padding:30px;text-align:center}
+.detail-empty .big{font-size:36px;filter:drop-shadow(0 0 20px rgba(192,132,252,0.3))}
+.detail-empty p{font-family:'Poppins',sans-serif !important;font-size:10px;line-height:1.9;letter-spacing:1px;font-weight:500}
+.detail-content{flex:1;overflow-y:auto;display:none;flex-direction:column}
+.detail-content.show{display:flex}
+.detail-hero{padding:18px 16px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(124,58,237,0.05) 0%,transparent 100%)}
+.detail-type-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.detail-title{font-family:'Poppins',sans-serif !important;font-size:13px;font-weight:700 !important;color:#f0e6ff;line-height:1.4;margin-bottom:6px}
+.detail-loc{font-family:'Poppins',sans-serif !important;font-size:10px;color:var(--muted);letter-spacing:0.5px;font-weight:500}
+.sev-display{display:flex;align-items:center;gap:12px;margin:14px 0 0}
+.sev-big{font-family:'Montserrat',sans-serif !important;font-size:38px;font-weight:900 !important;line-height:1}
+.sev-info{flex:1}
+.sev-bar-track{height:4px;background:var(--border2);border-radius:2px;overflow:hidden;margin-top:6px}
+.sev-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}
+.sev-label{font-family:'Poppins',sans-serif !important;font-size:9px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;font-weight:600}
+.detail-section{padding:12px 16px;border-bottom:1px solid var(--border)}
+.section-head{font-family:'Montserrat',sans-serif !important;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-weight:800 !important}
+.section-head::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(30,16,64,0.8);font-size:11px;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv-k{font-family:'Poppins',sans-serif !important;color:var(--muted);flex-shrink:0;max-width:130px;font-weight:500}
+.kv-v{font-family:'Poppins',sans-serif !important;color:var(--text);text-align:right;font-weight:600}
+.kv-v.danger{color:var(--red)}
+.kv-v.warn{color:var(--orange)}
+.kv-v.ok{color:var(--green)}
+.sources-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.src-chip{font-family:'Poppins',sans-serif !important;font-size:9px;padding:3px 10px;background:linear-gradient(135deg,rgba(192,132,252,0.08),rgba(129,140,248,0.08));color:var(--accent);border:1px solid rgba(192,132,252,0.2);border-radius:20px;font-weight:500}
+.gmaps-link{display:block;margin:0 16px 14px;padding:10px;text-align:center;font-family:'Poppins',sans-serif !important;font-size:9px;letter-spacing:1px;font-weight:700;background:linear-gradient(135deg,rgba(192,132,252,0.06),rgba(129,140,248,0.06));border:1px solid rgba(192,132,252,0.2);color:var(--accent);text-decoration:none;text-transform:uppercase;transition:all .2s;border-radius:6px}
+.gmaps-link:hover{background:linear-gradient(135deg,rgba(192,132,252,0.12),rgba(129,140,248,0.12));box-shadow:0 0 12px rgba(192,132,252,0.2)}
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{font-family:'Poppins',sans-serif !important;background:rgba(13,8,24,0.95);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:12px 16px;font-size:11px;color:var(--text);max-width:300px;animation:slideIn .3s ease;border-radius:6px;backdrop-filter:blur(10px);font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.marker{border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,0.15);transition:transform .2s}
+.marker:hover{transform:scale(1.35)}
+.loading{padding:30px 16px;text-align:center;font-family:'Poppins',sans-serif !important;font-size:10px;color:var(--muted);letter-spacing:1.5px;line-height:2.5;font-weight:500}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@keyframes breathe{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="logo-mark"><span class="logo-dot"></span>Earth<span class="logo-india">Watch</span>&nbsp;India</div>
+    <span class="topbar-sub">Environmental &amp; Disaster Intelligence</span>
+    <div class="topbar-stats">
+      <div class="ts" onclick="filterBy(null)"><span class="ts-num" id="s-total" style="color:#e8d5ff">—</span><span class="ts-lbl">Active</span></div>
+      <div class="ts" onclick="filterBy('cyclone')"><span class="ts-num" style="color:var(--accent)" id="s-cyclone">—</span><span class="ts-lbl">🌀 Cyclone</span></div>
+      <div class="ts" onclick="filterBy('flood')"><span class="ts-num" style="color:var(--blue)" id="s-flood">—</span><span class="ts-lbl">🌊 Flood</span></div>
+      <div class="ts" onclick="filterBy('fire')"><span class="ts-num" style="color:var(--orange)" id="s-fire">—</span><span class="ts-lbl">🔥 Fire</span></div>
+      <div class="ts" onclick="filterBy('air_quality')"><span class="ts-num" style="color:var(--pink)" id="s-aq">—</span><span class="ts-lbl">😷 Air</span></div>
+    </div>
+    <div class="clock-box"><span class="clock-time" id="clock">--:--:--</span><span style="font-size:9px;letter-spacing:1px;font-weight:500;font-family:'Poppins',sans-serif" id="clock-date">-- --- ----</span></div>
+  </header>
+  <aside class="left">
+    <div class="panel-header"><span class="panel-title">Live Incidents</span><span id="inc-count" style="font-family:'Poppins',sans-serif;font-size:10px;color:var(--muted);font-weight:600">—</span></div>
+    <div class="filters">
+      <button class="fbtn on" onclick="filterBy(null,this)">All</button>
+      <button class="fbtn" onclick="filterBy('cyclone',this)">🌀</button>
+      <button class="fbtn" onclick="filterBy('flood',this)">🌊</button>
+      <button class="fbtn" onclick="filterBy('fire',this)">🔥</button>
+      <button class="fbtn" onclick="filterBy('air_quality',this)">😷</button>
+      <button class="fbtn" onclick="filterBy('earthquake',this)">🌍</button>
+    </div>
+    <button class="run-btn" id="runBtn" onclick="runPipeline()">▶ &nbsp;REFRESH LIVE DATA</button>
+    <div class="list" id="list"><div class="loading">INITIALIZING...<br>CONNECTING TO LIVE FEEDS<br>NASA · NOAA · CPCB · IMD</div></div>
+  </aside>
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div><span class="dot" style="background:var(--red)"></span> Severity 8–10 Critical</div>
+      <div><span class="dot" style="background:var(--orange)"></span> Severity 5–7 High</div>
+      <div><span class="dot" style="background:var(--yellow)"></span> Severity 3–4 Moderate</div>
+      <div><span class="dot" style="background:var(--green)"></span> Severity 1–2 Low</div>
+    </div>
+  </div>
+  <aside class="right">
+    <div class="panel-header"><span class="panel-title">Incident Report</span></div>
+    <div class="detail-empty" id="detailEmpty"><span class="big">🛰️</span><p>SELECT AN INCIDENT<br>TO VIEW FULL<br>DAMAGE REPORT</p></div>
+    <div class="detail-content" id="detailContent"></div>
+  </aside>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+<script>
+const MAPTILER_KEY='xpwq6YwHbNKPK0cAZc9f';
+const API='http://localhost:8080';
+let incidents=[],markers=[],filterType=null,selectedId=null;
+
+maptilersdk.config.apiKey=MAPTILER_KEY;
+const map=new maptilersdk.Map({container:'map',style:maptilersdk.MapStyle.DARK,center:[82,22],zoom:4.2});
+map.addControl(new maptilersdk.NavigationControl({showCompass:false}),'bottom-right');
+
+function tick(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('en-IN',{hour12:false});document.getElementById('clock-date').textContent=n.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+setInterval(tick,1000);tick();
+
+async function load(){
+  try{
+    const r=await fetch(`${API}/api/incidents`);
+    const data=await r.json();
+    incidents=data.incidents||[];
+    renderList(incidents);renderMarkers(incidents);loadStats();
+  }catch(e){
+    document.getElementById('list').innerHTML=`<div class="loading" style="color:var(--red)">⚠ CANNOT REACH API<br><br>Run in terminal:<br><br><span style="color:var(--accent)">python run.py</span></div>`;
+  }
+}
+
+async function loadStats(){
+  try{const r=await fetch(`${API}/api/stats`);const d=await r.json();
+    document.getElementById('s-total').textContent=d.total||0;
+    document.getElementById('s-cyclone').textContent=d.by_type?.cyclone||0;
+    document.getElementById('s-flood').textContent=d.by_type?.flood||0;
+    document.getElementById('s-fire').textContent=d.by_type?.fire||0;
+    document.getElementById('s-aq').textContent=d.by_type?.air_quality||0;
+  }catch{}
+}
+
+function renderList(list){
+  const el=document.getElementById('list');
+  document.getElementById('inc-count').textContent=`${list.length} FOUND`;
+  if(!list.length){el.innerHTML=`<div class="loading">NO INCIDENTS<br><br><span style="color:var(--green)">ALL CLEAR</span></div>`;return;}
+  el.innerHTML=list.map(inc=>{const sc=sevColor(inc.severity);return`<div class="card ${inc.id===selectedId?'active':''}" onclick="select('${inc.id}')">
+    <div class="card-row1"><span class="badge t-${inc.type||'default'}">${emoji(inc.type)} ${(inc.type||'').replace('_',' ')}</span><span class="sev-pill" style="color:${sc}">${inc.severity||0}<span style="font-size:8px;color:var(--muted)">/10</span></span></div>
+    <div class="card-title">${inc.title||'Unknown'}</div>
+    <div class="card-meta"><span>📍 ${inc.location||'India'}</span><span class="conf-tag c-${inc.confidence||'LOW'}">${inc.confidence||'LOW'}</span><span>${inc.source_count||1} SRC</span></div>
+  </div>`;}).join('');
+}
+
+function renderMarkers(list){
+  markers.forEach(m=>m.remove());markers=[];
+  list.forEach(inc=>{
+    if(!inc.lat||!inc.lon)return;
+    const sev=inc.severity||1,size=10+sev*2.2,color=sevColor(sev);
+    const el=document.createElement('div');
+    el.className='marker';
+    el.style.cssText=`width:${size}px;height:${size}px;background:${color};box-shadow:0 0 ${sev>=8?16:8}px ${color};`;
+    el.onclick=()=>select(inc.id);
+    markers.push(new maptilersdk.Marker({element:el}).setLngLat([inc.lon,inc.lat]).addTo(map));
+  });
+}
+
+function select(id){
+  selectedId=id;const inc=incidents.find(i=>i.id===id);if(!inc)return;
+  if(inc.lat&&inc.lon)map.flyTo({center:[inc.lon,inc.lat],zoom:7.5,duration:900});
+  renderList(filterType?incidents.filter(i=>i.type===filterType):incidents);
+  showDetail(inc);
+}
+
+function showDetail(inc){
+  document.getElementById('detailEmpty').style.display='none';
+  const dc=document.getElementById('detailContent');dc.style.display='flex';dc.classList.add('show');
+  const sc=sevColor(inc.severity),details=inc.details||{},damage=inc.damage||{},sources=inc.source_list||[inc.source||'Unknown'];
+  const kvRow=(k,v)=>{const cls=String(v).match(/SEVERE|EXTREME|CRITICAL|YES|HIGH|BANNED/i)?'danger':String(v).match(/MODERATE|MEDIUM|LIMIT/i)?'warn':String(v).match(/LOW|GOOD|NO|CLEAR/i)?'ok':'';return`<div class="kv"><span class="kv-k">${k}</span><span class="kv-v ${cls}">${v||'—'}</span></div>`;};
+  dc.innerHTML=`
+    <div class="detail-hero">
+      <div class="detail-type-row"><span class="badge t-${inc.type||'default'}">${emoji(inc.type)} ${(inc.type||'').replace('_',' ')}</span><span class="conf-tag c-${inc.confidence||'LOW'}" style="margin-left:auto">${inc.confidence||'LOW'} CONFIDENCE</span></div>
+      <div class="detail-title">${inc.title||'Unknown'}</div>
+      <div class="detail-loc">📍 ${inc.location||'India'}, ${inc.state||''}</div>
+      <div class="sev-display">
+        <div class="sev-big" style="color:${sc}">${inc.severity||0}</div>
+        <div class="sev-info"><div class="sev-label">SEVERITY / 10</div><div class="sev-bar-track"><div class="sev-bar-fill" style="width:${(inc.severity||0)*10}%;background:${sc}"></div></div></div>
+        <div style="font-family:'Poppins',sans-serif;font-size:9px;color:var(--muted);text-align:right"><div>${inc.source_count||1} SOURCE${(inc.source_count||1)>1?'S':''}</div><div style="color:${sc};margin-top:3px">${inc.confidence||'LOW'}</div></div>
+      </div>
+    </div>
+    ${Object.keys(details).length?`<div class="detail-section"><div class="section-head">Incident Data</div>${Object.entries(details).map(([k,v])=>kvRow(k,v)).join('')}</div>`:''}
+    ${Object.keys(damage).length?`<div class="detail-section"><div class="section-head">Damage Assessment</div>${Object.entries(damage).map(([k,v])=>kvRow(k,v)).join('')}</div>`:''}
+    <div class="detail-section"><div class="section-head">Confirming Sources</div><div class="sources-wrap">${sources.map(s=>`<span class="src-chip">${s}</span>`).join('')}</div></div>
+    ${inc.lat&&inc.lon?`<a class="gmaps-link" href="https://maps.google.com/?q=${inc.lat},${inc.lon}" target="_blank">↗ &nbsp; OPEN IN GOOGLE MAPS</a>`:''}`;
+}
+
+function filterBy(type,btn){filterType=type;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');const list=type?incidents.filter(i=>i.type===type):incidents;renderList(list);renderMarkers(list);}
+
+async function runPipeline(){
+  const btn=document.getElementById('runBtn');btn.textContent='⏳  FETCHING LIVE DATA...';btn.classList.add('running');
+  try{await fetch(`${API}/api/run`,{method:'POST'});toast('Pipeline started...','accent');
+    setTimeout(async()=>{await load();btn.textContent='▶  REFRESH LIVE DATA';btn.classList.remove('running');toast(`✓ Updated — ${incidents.length} incidents`,'green');},10000);
+  }catch(e){btn.textContent='▶  REFRESH LIVE DATA';btn.classList.remove('running');toast('⚠ Backend not running','red');}
+}
+
+function connectWS(){try{const ws=new WebSocket(`ws://localhost:8080/ws`);ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='refresh'){load();toast('🔄 New data','accent');}};ws.onclose=()=>setTimeout(connectWS,3000);}catch{}}
+
+function toast(msg,color='accent'){const w=document.getElementById('toastWrap');const t=document.createElement('div');t.className='toast';t.style.borderLeftColor=`var(--${color})`;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),4000);}
+
+function sevColor(s){return s>=8?'var(--red)':s>=6?'var(--orange)':s>=4?'var(--yellow)':'var(--green)';}
+function emoji(t){return{cyclone:'🌀',flood:'🌊',fire:'🔥',air_quality:'😷',earthquake:'🌍',landslide:'⛰️'}[t]||'⚠️';}
+
+setInterval(load,300000);
+map.on('load',()=>{load();connectWS();});
+</script>
+</body>
+</html>
