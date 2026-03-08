@@ -1,10 +1,3 @@
-"""
-run.py — Start EarthWatch with ONE command:
-
-    python run.py
-
-That's it. Browser opens automatically.
-"""
 import subprocess, sys, os, time, webbrowser
 from threading import Thread
 
@@ -14,17 +7,17 @@ BANNER = """
 ║   🌍  EarthWatch India  —  Live Intelligence     ║
 ╠══════════════════════════════════════════════════╣
 ║                                                  ║
-║   Dashboard  →  http://localhost:8000            ║
-║   API Docs   →  http://localhost:8000/docs       ║
+║   Environmental Technology/ Disaster Management  ║
+║                                                  ║
 ║                                                  ║
 ║   Data Sources:                                  ║
-║   ✅  NOAA Cyclone Tracker  (no key needed)      ║
-║   ✅  NASA FIRMS Fire       (add to .env)        ║
-║   ✅  OpenWeatherMap Flood  (add to .env)        ║
-║   ✅  OpenAQ Air Quality    (add to .env)        ║
-║   ✅  Indian News NLP       (no key needed)      ║
+║   ✅  NOAA Cyclone Tracker                      ║
+║   ✅  NASA FIRMS Fire                           ║
+║   ✅  OpenWeatherMap Flood                      ║
+║   ✅  OpenAQ Air Quality                        ║
+║   ✅  Indian News NLP                           ║
 ║                                                  ║
-║   Press  Ctrl + C  to stop                       ║
+║                                                  ║
 ╚══════════════════════════════════════════════════╝
 """
 
@@ -51,7 +44,7 @@ if __name__ == "__main__":
     if not check_packages():
         sys.exit(1)
 
-    # Check .env has keys
+
     from dotenv import load_dotenv
     load_dotenv()
     missing = []
