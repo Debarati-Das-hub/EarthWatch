@@ -1,22 +1,11 @@
-"""
-data_ingestion/air_quality.py
-Real AQI from OpenAQ v3 API — FULLY CORRECT 2025 implementation
-Verified response structure from working v3 examples.
 
-Flow per city:
-  1. GET /v3/locations?coordinates=lat,lon&radius=25000&limit=10
-       → find location IDs + sensor IDs for pm25/pm10/no2
-  2. GET /v3/locations/{loc_id}/latest
-       → results[i] = {sensorsId, value, locationsId, datetime, coordinates}
-       → match sensorsId to get pm25 value
-"""
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from config import OPENAQ_KEY, ZONES
 
 BASE    = "https://api.openaq.org/v3"
-RADIUS  = 25000   # 25 km — max allowed by OpenAQ v3
+RADIUS  = 25000   
 TIMEOUT = 20
 
 
@@ -27,14 +16,10 @@ def _headers():
     return h
 
 
-# ── Step 1: find nearby locations and their sensor IDs ─────────────────────
+
 
 def find_pm25_sensors(lat, lon):
-    """
-    Returns list of {loc_id, loc_name, sensor_id, param_name} dicts
-    for pm25 (and pm10/no2) sensors within RADIUS of the given point.
-    coordinates param must be "lat,lon" per v3 docs.
-    """
+
     try:
         r = requests.get(
             f"{BASE}/locations",
@@ -68,13 +53,10 @@ def find_pm25_sensors(lat, lon):
         return []
 
 
-# ── Step 2: get latest readings for a location ─────────────────────────────
+
 
 def fetch_latest(loc_id):
-    """
-    GET /v3/locations/{loc_id}/latest
-    Returns list of {sensorsId, value, datetime} dicts.
-    """
+
     try:
         r = requests.get(
             f"{BASE}/locations/{loc_id}/latest",
@@ -88,18 +70,18 @@ def fetch_latest(loc_id):
         return []
 
 
-# ── Main per-zone function ─────────────────────────────────────────────────
+
 
 def get_aqi(zone):
     try:
         lat, lon = zone["lat"], zone["lon"]
 
-        # Find sensors near this city
+
         sensors = find_pm25_sensors(lat, lon)
         if not sensors:
             return None
 
-        # Group by location so we only call /latest once per location
+
         locs = {}
         for s in sensors:
             lid = s["loc_id"]
@@ -107,7 +89,7 @@ def get_aqi(zone):
                 locs[lid] = {"name": s["loc_name"], "sensors": {}}
             locs[lid]["sensors"][s["sensor_id"]] = s["param"]
 
-        # Fetch latest for each location, collect readings
+
         readings = {"pm25": None, "pm10": None, "no2": None}
         station  = zone["name"]
 
@@ -121,9 +103,9 @@ def get_aqi(zone):
                 val   = reading.get("value")
                 param = info["sensors"].get(sid)
                 if param and val is not None and float(val) > 0:
-                    if readings[param] is None:      # take first valid reading
+                    if readings[param] is None:
                         readings[param] = round(float(val), 1)
-            # Stop if we have pm25
+
             if readings["pm25"] is not None:
                 break
 
@@ -149,7 +131,7 @@ def get_aqi(zone):
         return None
 
 
-# ── AQI conversion (India CPCB scale) ─────────────────────────────────────
+
 
 def pm25_to_aqi(pm25):
     bp = [
@@ -175,7 +157,7 @@ def aqi_category(aqi):
     return               {"label": "Severe",        "color": "#7c3aed", "sev": 10}
 
 
-# ── Build alert objects ────────────────────────────────────────────────────
+
 
 def build_alerts(aq_data):
     alerts = []
@@ -187,7 +169,7 @@ def build_alerts(aq_data):
         cat  = d["category"]
         pm25 = d["pm25"]
 
-        # Show anything Moderate (sev>=5) or worse
+        
         if cat["sev"] < 5:
             continue
 
@@ -223,7 +205,6 @@ def build_alerts(aq_data):
     return alerts
 
 
-# ── Helper text functions ──────────────────────────────────────────────────
 
 def pollution_source(city):
     return {
@@ -263,7 +244,6 @@ def action(aqi):
     return "Wear mask outdoors. Avoid exercise outside."
 
 
-# ── Main entry point ───────────────────────────────────────────────────────
 
 def run():
     print("\n😷 Checking air quality across India (parallel)...")
@@ -271,7 +251,7 @@ def run():
         print("  ⚠️  Add OPENAQ_KEY to .env")
         return []
 
-    # Fetch all zones in parallel — much faster
+    
     data = []
     with ThreadPoolExecutor(max_workers=6) as pool:
         futures = {pool.submit(get_aqi, z): z for z in ZONES}
