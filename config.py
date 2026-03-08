@@ -8,7 +8,7 @@ OPENAQ_KEY      = os.getenv("OPENAQ_KEY", "")
 MAPBOX_TOKEN    = os.getenv("MAPBOX_TOKEN", "")
 PORT            = int(os.getenv("PORT", 8000))
 
-# India monitoring cities
+
 ZONES = [
     {"name": "Delhi",          "lat": 28.6139, "lon": 77.2090, "state": "Delhi"},
     {"name": "Mumbai",         "lat": 19.0760, "lon": 72.8777, "state": "Maharashtra"},
@@ -27,7 +27,7 @@ ZONES = [
     {"name": "Srinagar",       "lat": 34.0837, "lon": 74.7973, "state": "J&K"},
 ]
 
-# India authority contacts
+
 AUTHORITIES = {
     "cyclone":     "ndma@nic.in",
     "flood":       "ndma@nic.in",
