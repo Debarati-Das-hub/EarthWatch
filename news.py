@@ -1,8 +1,3 @@
-"""
-data_ingestion/news.py
-Scrapes Indian news feeds for environmental/disaster signals.
-NO API KEY NEEDED.
-"""
 import feedparser
 from datetime import datetime
 from config import ZONES
