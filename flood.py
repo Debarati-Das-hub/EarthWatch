@@ -1,7 +1,4 @@
-"""
-data_ingestion/flood.py
-Real rainfall & flood risk from OpenWeatherMap.
-"""
+
 import requests
 from datetime import datetime
 from config import OPENWEATHER_KEY, ZONES
@@ -29,7 +26,7 @@ def get_weather(zone):
         wind_ms = d.get("wind", {}).get("speed", 0)
         wind_kh = round(wind_ms * 3.6)
 
-        # Flood risk from IMD scale
+        
         if rain_1h > 50 or rain_3h > 100:
             risk, sev = "EXTREME", 9
         elif rain_1h > 20 or rain_3h > 50:
