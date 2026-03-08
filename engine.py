@@ -1,14 +1,11 @@
-"""
-aggregation/engine.py
-Combines all signals, deduplicates, scores severity.
-"""
+
 from geopy.distance import geodesic
 from datetime import datetime
 import uuid
 
 
 def deduplicate(alerts, radius_km=20):
-    """Merge alerts of same type within radius_km into one."""
+    
     merged = []
     used   = set()
 
@@ -29,10 +26,10 @@ def deduplicate(alerts, radius_km=20):
                 group.append(b)
                 used.add(j)
 
-        # Take highest severity from the group
+    
         best = max(group, key=lambda x: x.get("severity", 0))
 
-        # Count unique sources across group
+        
         sources = list({g["source"] for g in group})
         conf    = "HIGH" if len(sources) >= 3 else ("MEDIUM" if len(sources) == 2 else best["confidence"])
 
