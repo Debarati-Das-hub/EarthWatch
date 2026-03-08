@@ -1,8 +1,4 @@
-"""
-data_ingestion/cyclone.py
-Tracks Bay of Bengal & Arabian Sea cyclones.
-NO API KEY NEEDED — uses free NOAA data.
-"""
+
 import requests
 from geopy.distance import geodesic
 from datetime import datetime
@@ -10,7 +6,7 @@ from config import ZONES
 
 
 def get_active_cyclones():
-    """Fetch active cyclones from NOAA. No key needed."""
+    
     try:
         url  = "https://www.nhc.noaa.gov/CurrentStorms.json"
         resp = requests.get(url, timeout=10)
