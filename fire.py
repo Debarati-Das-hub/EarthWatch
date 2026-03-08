@@ -1,8 +1,4 @@
-"""
-data_ingestion/fire.py
-Real fire detections from NASA FIRMS satellite.
-Needs your free FIRMS key.
-"""
+
 import requests, csv, io
 from datetime import datetime
 from geopy.distance import geodesic
@@ -45,13 +41,13 @@ def get_fires(days=1):
 
 
 def fire_zone_type(lat, lon):
-    # Punjab/Haryana stubble burning
+
     if 29.5 <= lat <= 32.5 and 73.5 <= lon <= 77.5:
         return "Crop/Stubble Burning"
-    # Northeast forests
+    
     if 22 <= lat <= 28 and 88 <= lon <= 97:
         return "Forest Fire"
-    # Uttarakhand/HP forests
+    
     if 29 <= lat <= 32 and 77 <= lon <= 81:
         return "Forest Fire"
     return "Urban/Industrial Fire"
@@ -99,9 +95,9 @@ def build_alerts(fires):
                 },
                 "fetched_at": datetime.utcnow().isoformat()
             })
-            break  # Only nearest zone
+            break  
 
-    # Deduplicate — keep highest severity per location
+    
     seen = {}
     for a in alerts:
         key = f"{round(a['lat'], 1)}_{round(a['lon'], 1)}"
