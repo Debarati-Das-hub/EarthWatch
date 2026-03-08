@@ -1,6 +1,4 @@
-"""
-api/main.py  —  FastAPI backend with auto-refresh
-"""
+
 from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
